@@ -77,6 +77,10 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
         private var audioNowPlayingInfo: [String: Any] = [:]
         private var audioArtworkURL: String?
         private var audioArtwork: MPMediaItemArtwork?
+        private var pendingAudioTitle = ""
+        private var pendingAudioSubtitle = ""
+        private var pendingAudioLogo: String?
+        private var hasPendingAudioMetadata = false
     #endif
     private var isLiveSession = false
     private var forceSubtitlesDisabledOnStart = false
@@ -233,6 +237,7 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
             .sink { [weak self] value in
                 guard let self else { return }
                 self.duration = self.isLiveSession ? 0 : value
+                self.refreshSystemPlaybackState()
             }
             .store(in: &cancellables)
 
@@ -240,12 +245,16 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] value in
                 guard let self else { return }
+                let wasPlaying = self.isPlaying
                 if value != self.currentTime {
                     self.lastClockAdvanceAt = CACurrentMediaTime()
                 }
                 self.currentTime = value
                 self.position =
                     self.duration > 0 ? Float(value / self.duration) : 0
+                if !wasPlaying {
+                    self.refreshSystemPlaybackState()
+                }
             }
             .store(in: &cancellables)
 
@@ -355,6 +364,7 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
             nowPlaying.updatePlaybackState(
                 isPlaying: isPlaying, elapsed: currentTime, duration: duration, rate: rate)
         }
+        refreshSystemPlaybackState()
     }
 
     /// A stall means the engine lost its connection to the server, not that
@@ -455,36 +465,43 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
         nowPlaying.registerCommands()
     }
 
-    /// Populate the system Now Playing card from the UI metadata Flutter
-    /// pushes for the on-screen overlay. In audio-only mode the engine's own
-    /// audio host owns the Now Playing session, so route through it instead of
-    /// creating a competing session.
     func applyNowPlayingMetadata(_ args: [String: Any]) {
         let title = (args["topTitle"] as? String) ?? ""
         let subtitle = (args["topSubtitle"] as? String) ?? ""
         let logo = args["logoUrl"] as? String
-        // The engine's music session only exists on iOS and tvOS, and only tvOS
-        // drives Now Playing for video.
+        let hasNext = (args["hasNext"] as? Bool) ?? false
+        let hasPrevious = (args["hasPrevious"] as? Bool) ?? false
+        nowPlaying.setQueueCapabilities(hasNext: hasNext, hasPrevious: hasPrevious)
         #if os(iOS) || os(tvOS)
-            nowPlaying.setQueueCapabilities(
-                hasNext: (args["hasNext"] as? Bool) ?? false,
-                hasPrevious: (args["hasPrevious"] as? Bool) ?? false)
+            pendingAudioTitle = title
+            pendingAudioSubtitle = subtitle
+            pendingAudioLogo = logo
+            hasPendingAudioMetadata = true
             if isAudioOnlySession {
-                var info: [String: Any] = [
-                    MPMediaItemPropertyTitle: title,
-                    MPMediaItemPropertyArtist: subtitle,
-                    MPMediaItemPropertyAlbumTitle: subtitle,
-                    MPNowPlayingInfoPropertyMediaType:
-                        MPNowPlayingInfoMediaType.audio.rawValue,
-                ]
-                if duration > 0 {
-                    info[MPMediaItemPropertyPlaybackDuration] = duration
-                }
-                audioNowPlayingInfo = info
-                loadAudioArtwork(logo)
-                publishAudioNowPlaying()
+                applyPendingAudioMetadata()
                 return
             }
+        #else
+            if isAudioOnlySession {
+                nowPlaying.updateMetadata(
+                    title: title,
+                    subtitle: subtitle,
+                    durationSeconds: duration,
+                    artworkURL: (logo?.isEmpty ?? true) ? nil : logo,
+                    mediaType: .audio)
+                nowPlaying.updatePlaybackState(
+                    isPlaying: isPlaying, elapsed: currentTime, duration: duration, rate: rate)
+                return
+            }
+            nowPlaying.updateMetadata(
+                title: title,
+                subtitle: subtitle,
+                durationSeconds: duration,
+                artworkURL: (logo?.isEmpty ?? true) ? nil : logo,
+                mediaType: .video)
+            nowPlaying.updatePlaybackState(
+                isPlaying: isPlaying, elapsed: currentTime, duration: duration, rate: rate)
+            return
         #endif
         guard Self.drivesNowPlaying else { return }
         nowPlaying.updateMetadata(
@@ -497,9 +514,72 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
     }
 
     #if os(iOS) || os(tvOS)
+        private func applyPendingAudioMetadata() {
+            guard hasPendingAudioMetadata, isAudioOnlySession else { return }
+            hasPendingAudioMetadata = false
+            var info: [String: Any] = [
+                MPMediaItemPropertyTitle: pendingAudioTitle,
+                MPMediaItemPropertyArtist: pendingAudioSubtitle,
+                MPMediaItemPropertyAlbumTitle: pendingAudioSubtitle,
+                MPNowPlayingInfoPropertyMediaType:
+                    MPNowPlayingInfoMediaType.audio.rawValue,
+            ]
+            if duration > 0 {
+                info[MPMediaItemPropertyPlaybackDuration] = duration
+            }
+            audioNowPlayingInfo = info
+            loadAudioArtwork(pendingAudioLogo)
+            publishAudioNowPlaying()
+        }
+    #endif
+
+    private func refreshSystemPlaybackState() {
+        #if os(iOS) || os(tvOS)
+            if isAudioOnlySession {
+                publishAudioNowPlaying()
+                return
+            }
+        #else
+            nowPlaying.updatePlaybackState(
+                isPlaying: isPlaying, elapsed: currentTime, duration: duration, rate: rate)
+            return
+        #endif
+        guard Self.drivesNowPlaying, isPlaying || state == .paused else { return }
+        nowPlaying.updatePlaybackState(
+            isPlaying: isPlaying, elapsed: currentTime, duration: duration, rate: rate)
+    }
+
+    private func clearSystemPlaybackState() {
+        #if os(iOS) || os(tvOS)
+            if isAudioOnlySession {
+                audioNowPlayingInfo = [:]
+                audioArtwork = nil
+                audioArtworkURL = nil
+                Self.sharedEngine()?.setAudioNowPlayingInfo([:])
+                return
+            }
+        #endif
+        #if os(macOS)
+            nowPlaying.clear()
+            return
+        #endif
+        if Self.drivesNowPlaying {
+            nowPlaying.clear()
+        }
+    }
+
+    #if os(iOS) || os(tvOS)
         private func publishAudioNowPlaying() {
+            guard isAudioOnlySession, !audioNowPlayingInfo.isEmpty else { return }
             var info = audioNowPlayingInfo
-            info[MPMediaItemPropertyArtwork] = audioArtwork
+            if duration > 0 {
+                info[MPMediaItemPropertyPlaybackDuration] = duration
+            }
+            info[MPNowPlayingInfoPropertyElapsedPlaybackTime] = max(0, currentTime)
+            info[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? Double(rate <= 0 ? 1 : rate) : 0
+            if let artwork = audioArtwork {
+                info[MPMediaItemPropertyArtwork] = artwork
+            }
             Self.sharedEngine()?.setAudioNowPlayingInfo(info)
         }
 
@@ -724,6 +804,13 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
             engine.stop(resetDisplayCriteria: false)
         }
         isAudioOnlySession = audioOnly
+        #if os(iOS) || os(tvOS)
+            if audioOnly {
+                applyPendingAudioMetadata()
+            } else {
+                hasPendingAudioMetadata = false
+            }
+        #endif
         isLiveSession = sourceConfiguration.isLive
         didEmitLoadError = false
         resetStallTracking()
@@ -798,8 +885,8 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
                 if audioOnly {
                     nowPlaying.adopt(session: engine.audioNowPlayingSession)
                 }
-                nowPlaying.setIntervalSkipsEnabled(!audioOnly)
             #endif
+            nowPlaying.setIntervalSkipsEnabled(!audioOnly)
             seatDeclaredSubtitles(engine)
             if forceSubtitlesDisabledOnStart {
                 engine.clearSubtitle()
@@ -893,6 +980,7 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
         state = .stopped
         subtitleOverlay.clear()
         resetAssState()
+        clearSystemPlaybackState()
     }
 
     /// Full teardown on dismiss: resets display criteria, releases the view
@@ -929,6 +1017,7 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
         let clamped = min(max(newRate, 0), engine.maxSupportedRate)
         engine.setRate(clamped)
         rate = clamped == 0 ? rate : clamped
+        refreshSystemPlaybackState()
     }
 
     // MARK: - Volume / ReplayGain
