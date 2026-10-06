@@ -1017,7 +1017,8 @@ void main() async {
 /// the Android audio session configuration must follow initAudioService.
 Future<void> _initDeferredStartupServices(UserPreferences prefs) async {
   if (PlatformDetection.isMobile ||
-      (PlatformDetection.isAndroid && PlatformDetection.isTV)) {
+      (PlatformDetection.isAndroid && PlatformDetection.isTV) ||
+      PlatformDetection.isMacOS) {
     try {
       await initAudioService(
         manager: GetIt.instance<PlaybackManager>(),
