@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -26,8 +26,6 @@
 		6F4CFEA27B18BF00FB43BC3C /* AetherEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 8786E16205A7BE349F454609 /* AetherEngine */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		75BB266A581A876EBD204C64 /* SubtitleOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02C0A4E7A062AF1EFB102CC /* SubtitleOverlay.swift */; };
-		B6A0D1E2F3C4B5A69788A004 /* BackgroundRefreshSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A0D1E2F3C4B5A69788A003 /* BackgroundRefreshSchedulerTests.swift */; };
-		B6A0D1E2F3C4B5A69788A002 /* BackgroundRefreshScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A0D1E2F3C4B5A69788A001 /* BackgroundRefreshScheduler.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
 		9116123A0992A73C3E02C73F /* AppleTvThemeMusicChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E1A1A31F9035F6524D87796 /* AppleTvThemeMusicChannel.swift */; };
 		94A7E6937F4F716E63C4193D /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A358ADD35E342E66555045A9 /* Pods_Runner.framework */; };
@@ -38,6 +36,8 @@
 		A15C32B5159E0F929AC6DA11 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 095D6119F29CB7DFCDDFBEC9 /* GoogleService-Info.plist */; };
 		AF0112BB5C13473C7C9BEAF9 /* AppleTvPreviewChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACD4B25D66093D5994D0D96C /* AppleTvPreviewChannel.swift */; };
 		B2D3B6899D5AC372CED69286 /* AetherVideoChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C447AAE2415C624001FFFAE0 /* AetherVideoChannel.swift */; };
+		B6A0D1E2F3C4B5A69788A002 /* BackgroundRefreshScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A0D1E2F3C4B5A69788A001 /* BackgroundRefreshScheduler.swift */; };
+		B6A0D1E2F3C4B5A69788A004 /* BackgroundRefreshSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6A0D1E2F3C4B5A69788A003 /* BackgroundRefreshSchedulerTests.swift */; };
 		E2A07118715C886FDA36EA75 /* NowPlayingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 041867628B7462DDA898ACDA /* NowPlayingController.swift */; };
 /* End PBXBuildFile section */
 
@@ -88,8 +88,6 @@
 		6A72A9663C768D316590C41E /* AssRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AssRenderer.swift; path = ../../../tvos/Runner/Playback/Aether/AssRenderer.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B6A0D1E2F3C4B5A69788A003 /* BackgroundRefreshSchedulerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshSchedulerTests.swift; sourceTree = "<group>"; };
-		B6A0D1E2F3C4B5A69788A001 /* BackgroundRefreshScheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshScheduler.swift; sourceTree = "<group>"; };
 		78E0A7A72DC9AD7400C4905E /* FlutterGeneratedPluginSwiftPackage */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = FlutterGeneratedPluginSwiftPackage; path = Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7C182E5551362E126A18C153 /* AetherPlayerWrapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AetherPlayerWrapper.swift; path = ../../../tvos/Runner/Playback/Aether/AetherPlayerWrapper.swift; sourceTree = "<group>"; };
@@ -105,6 +103,8 @@
 		A612BBD5A20C7D958608852B /* SubtitleFontLocator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SubtitleFontLocator.swift; path = ../../../tvos/Runner/Playback/Aether/SubtitleFontLocator.swift; sourceTree = "<group>"; };
 		ACD4B25D66093D5994D0D96C /* AppleTvPreviewChannel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppleTvPreviewChannel.swift; path = ../../../tvos/Runner/AppleTvPreviewChannel.swift; sourceTree = "<group>"; };
 		AE376066E6B335EECE92FE9D /* AetherVideoPlatformView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AetherVideoPlatformView.swift; sourceTree = "<group>"; };
+		B6A0D1E2F3C4B5A69788A001 /* BackgroundRefreshScheduler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshScheduler.swift; sourceTree = "<group>"; };
+		B6A0D1E2F3C4B5A69788A003 /* BackgroundRefreshSchedulerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BackgroundRefreshSchedulerTests.swift; sourceTree = "<group>"; };
 		BA90E277C62118D7E411055C /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C447AAE2415C624001FFFAE0 /* AetherVideoChannel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AetherVideoChannel.swift; path = ../../../tvos/Runner/Playback/Aether/AetherVideoChannel.swift; sourceTree = "<group>"; };
 		DB9113DAFEDA0B5665CF4345 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
@@ -596,7 +596,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "$(MOONFIN_ENTITLEMENTS)";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = "$(MOONFIN_DEVELOPMENT_TEAM)";
+				DEVELOPMENT_TEAM = FR5NYGCZ9Q;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -781,7 +781,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "$(MOONFIN_ENTITLEMENTS)";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = "$(MOONFIN_DEVELOPMENT_TEAM)";
+				DEVELOPMENT_TEAM = FR5NYGCZ9Q;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
@@ -806,7 +806,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "$(MOONFIN_ENTITLEMENTS)";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = "$(MOONFIN_DEVELOPMENT_TEAM)";
+				DEVELOPMENT_TEAM = FR5NYGCZ9Q;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
