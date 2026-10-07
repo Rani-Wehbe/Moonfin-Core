@@ -81,6 +81,11 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
         private var pendingAudioSubtitle = ""
         private var pendingAudioLogo: String?
         private var hasPendingAudioMetadata = false
+    #else
+        private var macPendingAudioTitle = ""
+        private var macPendingAudioSubtitle = ""
+        private var macPendingAudioLogo: String?
+        private var hasMacPendingAudioMetadata = false
     #endif
     private var isLiveSession = false
     private var forceSubtitlesDisabledOnStart = false
@@ -480,7 +485,12 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
                 return
             }
         #else
+            macPendingAudioTitle = title
+            macPendingAudioSubtitle = subtitle
+            macPendingAudioLogo = logo
+            hasMacPendingAudioMetadata = true
             if isAudioOnlySession {
+                hasMacPendingAudioMetadata = false
                 nowPlaying.updateMetadata(
                     title: title,
                     subtitle: subtitle,
@@ -528,6 +538,19 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
             audioNowPlayingInfo = info
             loadAudioArtwork(pendingAudioLogo)
             publishAudioNowPlaying()
+        }
+    #else
+        private func flushMacPendingAudioMetadata() {
+            guard hasMacPendingAudioMetadata, isAudioOnlySession else { return }
+            hasMacPendingAudioMetadata = false
+            nowPlaying.updateMetadata(
+                title: macPendingAudioTitle,
+                subtitle: macPendingAudioSubtitle,
+                durationSeconds: duration,
+                artworkURL: (macPendingAudioLogo?.isEmpty ?? true) ? nil : macPendingAudioLogo,
+                mediaType: .audio)
+            nowPlaying.updatePlaybackState(
+                isPlaying: isPlaying, elapsed: currentTime, duration: duration, rate: rate)
         }
     #endif
 
@@ -807,6 +830,12 @@ final class AetherPlayerWrapper: NSObject, ObservableObject {
                 applyPendingAudioMetadata()
             } else {
                 hasPendingAudioMetadata = false
+            }
+        #else
+            if audioOnly {
+                flushMacPendingAudioMetadata()
+            } else {
+                hasMacPendingAudioMetadata = false
             }
         #endif
         isLiveSession = sourceConfiguration.isLive
